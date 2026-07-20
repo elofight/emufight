@@ -1,0 +1,4 @@
+[submodule "vendor/ymfm"]
+	path = vendor/ymfm
+	url = https://github.com/elofight/ymfm.git
+	branch = main

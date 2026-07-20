@@ -1,0 +1,14 @@
+/target
+**/*.rs.bk
+.DS_Store
+
+# Never commit game ROMs or system BIOS dumps
+/roms/
+/data/
+*.zip
+*.rom
+*.p1
+*.c1
+roms.json
+
+# Boot savestates (charselect.bin) are intentional — do not ignore /boot

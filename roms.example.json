@@ -1,0 +1,5 @@
+{
+  "kof98": { "platform": "neogeo", "require": ["neogeo"] },
+  "neogeo": { "platform": "neogeo" },
+  "sf2ce": { "platform": "cps1" }
+}

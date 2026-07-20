@@ -1,0 +1,9 @@
+emufight
+Copyright 2026 Elofight contributors
+
+This product includes software developed by third parties:
+
+- ymfm (Aaron Giles) — BSD 3-Clause — see vendor/ymfm/LICENSE
+- ggrs — MIT OR Apache-2.0 — https://github.com/elofight/ggrs
+- m68k (m68k-rs) — MIT — https://github.com/elofight/m68k-rs
+- iz80 and other crates.io dependencies — see their respective licenses

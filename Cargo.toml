@@ -1,0 +1,64 @@
+[package]
+name = "emufight"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+description = "Deterministic arcade emulator core and rollback netplay session"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/elofight/emufight"
+keywords = ["emulator", "arcade", "neogeo", "rollback", "netplay"]
+categories = ["emulators", "game-development"]
+
+[lib]
+name = "emufight"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[features]
+default = ["netplay"]
+# Load ROM sets from zip archives on disk (no network).
+zip = ["dep:zip"]
+# Optional host convenience: download catalog `download` URLs via ureq.
+# Not required for normal disk loading; host owns licensing and URL selection.
+native-romset = ["dep:ureq", "zip"]
+netplay = ["dep:ggrs", "dep:rand"]
+# Build the reference SDL2 host binary (emufight-sdl).
+sdl-host = ["dep:sdl2"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bincode = "1"
+iz80 = "0.5"
+# Elofight fork of benletchford/m68k-rs (crate name m68k) — pin by rev for reproducibility
+m68k_cpu = { package = "m68k", git = "https://github.com/elofight/m68k-rs", rev = "f60a69d95f37722c2a943b667d586984e44008b8" }
+log = "0.4"
+env_logger = "0.11"
+flate2 = "1"
+bytemuck = "1"
+zip = { version = "0.6", default-features = false, features = ["deflate"], optional = true }
+ureq = { version = "2", features = ["json", "native-certs"], optional = true }
+# Elofight fork of gschup/ggrs (v0.10.2 + patches) — pin by rev for reproducibility
+ggrs = { git = "https://github.com/elofight/ggrs", rev = "725ba7eedcb508e90de29c007aa7938fa3e1ae4d", optional = true }
+rand = { version = "0.8", optional = true }
+# Reference SDL2 host (gated behind sdl-host feature).
+sdl2 = { version = "0.37", features = ["unsafe_textures"], optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+
+[build-dependencies]
+cc = "1"
+
+[dev-dependencies]
+serial_test = "3"
+
+[[bin]]
+name = "emufight-sdl"
+path = "src/bin/emufight-sdl.rs"
+required-features = ["sdl-host"]
+
+[[bin]]
+name = "emufight-capture-boot"
+path = "src/bin/emufight-capture-boot.rs"

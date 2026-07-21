@@ -143,8 +143,10 @@ fn run(args: Args) -> Result<(), String> {
     let mut emu = create_emulator_for_platform(&platform)?;
     emu.load_roms(Some(&args.rom))?;
     emu.reset();
-    if emu.load_initial_match_state() {
-        info!("loaded host initial match state");
+    if args.listen.is_some() || args.connect.is_some() {
+        if emu.load_initial_match_state() {
+            info!("loaded host initial match state");
+        }
     }
 
     let (w, h) = emu.resolution();

@@ -91,6 +91,14 @@ impl OnlineSpectatorSession {
             );
         }
         let pairs = decode_input_pairs(payload);
+        // Packed 0 == fully idle (see PACK_IDLE_XOR) — count non-idle pairs so
+        // logs can tell "receiving bytes" apart from "receiving real presses".
+        let non_idle = pairs.iter().filter(|(p0, p1)| *p0 != 0 || *p1 != 0).count();
+        log::info!(
+            "SPECTATE: live batch decoded {} frames, {} non-idle",
+            pairs.len(),
+            non_idle
+        );
         self.log.extend(pairs);
     }
 
@@ -120,8 +128,16 @@ impl OnlineSpectatorSession {
             log::error!("SPECTATE: catch-up decoded 0 frames from {} bytes", payload.len());
             return;
         }
+        // Packed 0 == fully idle (see PACK_IDLE_XOR) — count non-idle pairs so
+        // logs can tell "receiving bytes" apart from "receiving real presses".
+        let non_idle = pairs.iter().filter(|(p0, p1)| *p0 != 0 || *p1 != 0).count();
         self.log.extend(pairs);
-        log::info!("SPECTATE: catch-up decoded {} frames ({} bytes)", total, payload.len());
+        log::info!(
+            "SPECTATE: catch-up decoded {} frames ({} bytes, {} non-idle)",
+            total,
+            payload.len(),
+            non_idle
+        );
     }
 
     /// Frames available ahead of the playback cursor (buffered, not yet shown).

@@ -143,10 +143,19 @@ impl OnlineSpectatorSession {
     /// Seed directly from a host-provided confirmed-state checkpoint, skipping
     /// the from-boot replay for late-joining live spectators. `frame` is the
     /// absolute match frame the checkpoint represents; inputs pushed after
-    /// this call are assumed to start immediately following it. Discards any
-    /// buffered log/local checkpoints, since they'd be indexed from the old
-    /// (boot) origin. Returns `false` if the state fails to load (caller
-    /// should fall back to boot + full catch-up).
+    /// this call are assumed to start immediately following it.
+    ///
+    /// Deliberately does **not** clear `log`: the wire protocol delivers the
+    /// checkpoint chunks before the trimmed continuation tail (and any live
+    /// inputs that arrive in the same window), so by the time this runs
+    /// (deferred to the next `catch_up_tick`) `log` already holds exactly the
+    /// frames that continue from this checkpoint — discarding it would
+    /// desync playback from the correct input stream. `cursor` is always 0
+    /// here (nothing has been consumed yet), so no already-played entries
+    /// need discarding either. `checkpoints` (local rewind anchors) is
+    /// cleared since it's indexed from the old (boot) origin.
+    /// Returns `false` if the state fails to load (caller should fall back
+    /// to boot + full catch-up).
     pub fn seed_from_checkpoint(
         &mut self,
         emulator: &mut dyn EmulatorCore,
@@ -157,7 +166,6 @@ impl OnlineSpectatorSession {
             return false;
         }
         self.boot_state = bytes.to_vec();
-        self.log.clear();
         self.checkpoints.clear();
         self.cursor = 0;
         self.current_frame = 0;

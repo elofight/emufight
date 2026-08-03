@@ -15,8 +15,9 @@ pub enum SeekProgress {
 }
 
 /// Interval between in-memory save-state checkpoints (frames).
-/// ~3s at 60 Hz — keeps rewinds short without huge RAM use.
-pub const SPECTATOR_CHECKPOINT_INTERVAL: usize = 180;
+/// 1s at 60 Hz — granular backward seeks; each anchor is a ~120-200 KB
+/// save-state, so a 20-min session holds ~1200 checkpoints (~190 MB worst case).
+pub const SPECTATOR_CHECKPOINT_INTERVAL: usize = 60;
 
 /// Host-fed spectator / replay session (no GGRS).
 ///

@@ -537,7 +537,11 @@ where
             return Vec::new();
         }
         // confirmed_frame() is inclusive; stream up to and including it.
-        let end = ((confirmed as usize) + 1).min(self.all_inputs.len());
+        // Cap by current_frame (the frames we've actually simulated so far),
+        // because all_inputs might contain future garbage from mispredictions
+        // if we rolled back and haven't overwritten them yet.
+        let sim_end = self.current_frame.max(0) as usize;
+        let end = ((confirmed as usize) + 1).min(self.all_inputs.len()).min(sim_end);
         let last = self.last_polled_frame.max(0) as usize;
         if end <= last {
             return Vec::new();

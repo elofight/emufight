@@ -302,6 +302,14 @@ impl Emulator {
         self.bus.lspc.tick_vbl();
         self.bus.raise_irq(0x04);
         self.run_cycles(CYCLES_VBLANK);
+
+        // Drain and discard audio produced during this headless frame so it doesn't
+        // accumulate and cause a massive sample dump on the next full `step`.
+        let produced = self.ym2610.ring_count();
+        if produced > 0 {
+            self.audio_buf.clear();
+            self.audio.generate_samples(&mut self.audio_buf, &mut self.ym2610, produced);
+        }
     }
 
     // ── Save state ────────────────────────────────────────────────────────────
